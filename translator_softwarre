@@ -1,29 +1,39 @@
+#使用tkinter库来做界面
 from tkinter import *
 import requests
 import json
 
+#模块一获取有道词典翻译部分
 def fanyi():
-    content = entry1.get().strip()#去除空格
+    content = entry1.get().strip()#获取entry1中的结果并且去除空格
     data={
     'i': content,
     'doctype': 'json'
 
     }
+    
+#url中去掉了_o是为了可以双向翻译
     url = 'http://fanyi.youdao.com/translate?smartresult=dict&smartresult=rule'
     r= requests.post(url,data=data)
     ret = r.content.decode()
     result = json.loads(ret)
+    #将res设置好后放到entry2中
     res.set(result['translateResult'][0][0]['tgt'])
+    
+    
+#模块二是图形界面的设置
 m = Tk()
 m.title('翻译软件')
 m.geometry('400x100+450+278')#x是小写字母x
 Label(m,text='输入内容',font=('GB2312',18)).grid(row=0,column=0)
 Label(m,text='结果',font=('GB2312',18)).grid(row=1,column=0)
-entry1=Entry(m,font=('GB2313',18))
+entry1=Entry(m,font=('GB2313',18))#可以输入内容的地方
 entry1.grid(row=0,column=1)
 res = StringVar()
-entry2 = Entry(m,font=('GB2313',18),textvariable=res)
+entry2 = Entry(m,font=('GB2313',18),textvariable=res)将res与entry2绑定
 entry2.grid(row=1,column=1)
+
+#command来调用函数和方法
 Button(m,text='翻译',width=10,font=('GB2313',18),command=fanyi).grid(row=2,column=0,sticky=W)
 Button(m,text='退出',width=10,font=('GB2313',18),command=m.quit).grid(row=2,column=1,sticky=E)
 

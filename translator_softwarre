@@ -38,3 +38,5 @@ Button(m,text='翻译',width=10,font=('GB2313',18),command=fanyi).grid(row=2,col
 Button(m,text='退出',width=10,font=('GB2313',18),command=m.quit).grid(row=2,column=1,sticky=E)
 
 m.mainloop()
+#打包成apk是使用命令pyinstaller -F -w xxx.py
+

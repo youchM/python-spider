@@ -4,11 +4,15 @@ from lxml import html
 import time
 etree = html.etree
 
+
+#定义一个全局获取源代码的方法，因为无论是翻页面还是内容面都是动态网页返回的都是json
 def spider(the_url):
     hea = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.92 Safari/537.36'}
-    r =requests.get(the_url,headers=hea)
+    r =requests.get(the_url,headers=hea) 
+    time.sleep(2)
     return r.json()
 
+#定义一个构造链接的函数，页码链接和文章链接
 def get_all_url(page_num):
     pre_url = 'https://36kr.com/api/search-column/mainsite?per_page='
     for num in range(1,page_num+1):
@@ -16,8 +20,9 @@ def get_all_url(page_num):
     #之后是去解码它,构造链接
         for article in res.get('data').get('items'):
             article_url = 'http://36kr.com/api/post/'+str(article.get('id'))+'/next'
-            yield article_url
+            yield article_url #请求一次返回一个文章的内容去解析
 
+#定义一个解析函数，是使用xpath解析
 def spider_xq(url):
     response = spider(url)
     title = response.get('data').get('title')
@@ -26,10 +31,13 @@ def spider_xq(url):
     cleared_content = sel.xpath('string(//*)')#从根目录开始查找所有的标签
     data_writer(title,cleared_content)
 
+#定义一个保存函数
 def data_writer(title,cleared_content):
+#wt模式下，Python写文件时会用\r\n来表示换行
     with open('./wenzhang/'+title+'.txt','wt',encoding='utf-8') as f:
         f.write(cleared_content)
         print(title)
+ 
 for url_ in get_all_url(2):
     try:
         spider_xq(url_)

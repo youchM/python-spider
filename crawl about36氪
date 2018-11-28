@@ -1,0 +1,38 @@
+#现在主要学习36氪首页的爬取方式,而且这个框架可以用在其他的动态网页中
+import requests
+from lxml import html
+import time
+etree = html.etree
+
+def spider(the_url):
+    hea = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.92 Safari/537.36'}
+    r =requests.get(the_url,headers=hea)
+    return r.json()
+
+def get_all_url(page_num):
+    pre_url = 'https://36kr.com/api/search-column/mainsite?per_page='
+    for num in range(1,page_num+1):
+        res = spider(pre_url +str(num))
+    #之后是去解码它,构造链接
+        for article in res.get('data').get('items'):
+            article_url = 'http://36kr.com/api/post/'+str(article.get('id'))+'/next'
+            yield article_url
+
+def spider_xq(url):
+    response = spider(url)
+    title = response.get('data').get('title')
+    content = response.get('data').get('content')
+    sel = etree.HTML(content)
+    cleared_content = sel.xpath('string(//*)')#从根目录开始查找所有的标签
+    data_writer(title,cleared_content)
+
+def data_writer(title,cleared_content):
+    with open('./wenzhang/'+title+'.txt','wt',encoding='utf-8') as f:
+        f.write(cleared_content)
+        print(title)
+for url_ in get_all_url(2):
+    try:
+        spider_xq(url_)
+    except:
+        print(url_)
+        continue
